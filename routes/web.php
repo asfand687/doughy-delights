@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +31,12 @@ Route::get('/logout', function () {
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/signup', [UserController::class, 'signup']);
 
+Route::get('/menu', [ProductController::class, 'index']);
+Route::get('/specials', [ProductController::class, 'specials']);
+Route::get('/gift_baskets', [ProductController::class, 'giftBaskets']);
+Route::get('/product/{id}', [ProductController::class, 'detail']);
+Route::post('/add_to_cart', [ProductController::class, 'addToCart']);
+Route::get('/cart_list', [ProductController::class, 'cartList']);
+Route::get('/removecart/{id}', [ProductController::class, 'removeCart']);
+Route::get('/checkout', [ProductController::class, 'cartCheckout']);
 
