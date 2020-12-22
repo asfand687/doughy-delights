@@ -1,7 +1,7 @@
 @extends('master')
 @section('content')
 
-<div class="product-page container">
+<div class="product-page container pb-2">
   <h2>Our Specials</h2>
   <div class="menu-grid">
     @foreach ($products as $product)

@@ -11,7 +11,8 @@
         </div>
         <div>
           <h3>{{$product->name}}</h3>
-          <h5>{{$product->description}}</h5>
+          <h5 class="quantity">Quantity: {{$product->product_quantity}}</h5>
+          <p class="price">Price: PKR {{$product->total_price}}</p>
         </div>
         <div>
           <a class="remove-button" href="/removecart/{{$product->cart_id}}">

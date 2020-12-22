@@ -23,7 +23,7 @@
         <h3>Our Specials</h3>
       </div>
     </div>
-    <div><a href="#"><img src="{{url('/img/order.jpg')}}" alt="Image"/></a>
+    <div><a href="/cart_list"><img src="{{url('/img/order.jpg')}}" alt="Image"/></a>
       <div class="caption">
         <h3>Orders</h3>
       </div>
@@ -51,5 +51,6 @@
     </div>
   </div>
 </div>
+<div class="spacer"></div>
 
 @endsection

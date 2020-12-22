@@ -1,7 +1,8 @@
 @extends('master')
 @section('content')
-<div class="product-page container pb-2 mb-2">
-  <h2>Our Menu</h2>
+
+<div class="product-page container">
+  <h2>Search Results</h2>
   <div class="menu-grid">
     @foreach ($products as $product)
     <a href="/product/{{$product['id']}}">
@@ -19,5 +20,5 @@
       @endforeach
   </div>
 </div>
-@endsection
 
+@endsection

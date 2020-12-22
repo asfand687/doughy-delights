@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Order;
 
 use Session;
 
@@ -32,13 +33,32 @@ class ProductController extends Controller
         return view('productDetail', ['product'=>$data]);
     }
 
+    function search(Request $req) {
+        $searchText = $req->input('query');
+        $data = Product::where('name' , 'like', '%'.$searchText.'%')->get();
+        return view('search', ['products'=>$data]);
+    }
+
     function addToCart(Request $req) {
         if($req->session()->has('user')){
-            $cart = new Cart;
-            $cart->user_id = $req->session()->get('user')['id'];
-            $cart->product_id = $req->product_id;
-            $cart->save();
-            return redirect('/');
+            $userId = Session::get('user')['id'];
+            if(Cart::where('user_id', $userId)->where('product_id', $req->product_id)->exists()) {
+                $cart= Cart::where('user_id', $userId)->where('product_id', $req->product_id)->get()[0];
+                $quantity = $cart->quantity + $req->quantity;
+                $cart->quantity = $quantity;
+                $cart->price = $req->product_price * $quantity;
+                $cart->save();
+                return redirect('/');
+            } else {
+                $cart = new Cart;
+                $quantity = $req->quantity * $req->product_price;
+                $cart->user_id = $userId;
+                $cart->product_id = $req->product_id;
+                $cart->quantity = $req->quantity;
+                $cart->price = $quantity;
+                $cart->save();
+                return redirect('/');
+            }
         } else {
             return redirect('/login');
         }
@@ -54,7 +74,7 @@ class ProductController extends Controller
         $products = DB::table('carts')
                     ->join('products', 'carts.product_id', '=', 'products.id')
                     ->where('carts.user_id', $userId)
-                ->select('products.*', 'carts.id as cart_id')->get();
+                ->select('products.*', 'carts.id as cart_id', 'carts.quantity as product_quantity', 'carts.price as total_price')->get();
                 return view('cartList', ['products'=>$products]);
     }
 
@@ -65,11 +85,31 @@ class ProductController extends Controller
 
     function cartCheckout(){
         $userId = Session::get('user')['id'];
+        // $total = DB::table('carts')
+        //             ->join('products', 'carts.product_id', '=', 'products.id')
+        //             ->where('carts.user_id', $userId)
+        //             ->sum('products.price');
         $total = DB::table('carts')
-                    ->join('products', 'carts.product_id', '=', 'products.id')
-                    ->where('carts.user_id', $userId)
-                    ->sum('products.quantity');
-        return $total;
-        // return view('checkout', ['totalAmount'=>$total]);        
+                ->where('carts.user_id', $userId)->sum('price');
+        return view('checkout', ['totalAmount'=>$total]);        
+    }
+
+    function orderPlace(Request $req) {
+        $userId = Session::get('user')['id'];
+        $allCart = Cart::where('user_id', $userId)->get();
+        foreach($allCart as $cart)
+        {
+            $order = new Order;
+            $order->product_id = $cart['product_id'];
+            $order->user_id = $cart['user_id'];
+            $order->payment_method = $req->payment_method;
+            $order->delivery = $req->delivery;
+            $order->address1 = $req->address1;
+            $order->address2 = $req->address2;
+            $order->product_quantity = $cart['quantity'];
+            $order->save();
+            Cart::where('user_id', $userId)->delete();
+        }
+        return redirect('/');
     }
 }
